@@ -1,0 +1,29 @@
+{
+  "name": "rfid-tester",
+  "version": "1.0.0",
+  "description": "Runs the RFID Tester in the Lobby",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MydKnight/Inferno2.0.git"
+  },
+  "keywords": [
+    "node",
+    "iot",
+    "raspberrypi"
+  ],
+  "author": "Shiloh Madsen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MydKnight/Inferno2.0/issues"
+  },
+  "homepage": "https://github.com/MydKnight/Inferno2.0#readme",
+  "dependencies": {
+    "@sentry/node": "^6.10.0",
+    "@sentry/tracing": "^6.10.0"
+  }
+}

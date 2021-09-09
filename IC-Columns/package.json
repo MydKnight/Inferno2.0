@@ -1,0 +1,16 @@
+{
+  "name": "ic-columns",
+  "version": "1.0.0",
+  "description": "Runs the three columns in the Innder Circle ",
+  "main": "index.js",
+  "scripts": {
+    "start": "node IC-Column.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Shiloh Madsen",
+  "license": "ISC",
+  "dependencies": {
+    "@sentry/node": "^6.12.0",
+    "@sentry/tracing": "^6.12.0"
+  }
+}
