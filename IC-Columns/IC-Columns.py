@@ -1,6 +1,6 @@
 # External module imports
 import RPi.GPIO as GPIO
-import sentry_sdk, Movies, time
+import sentry_sdk, Movies, time, os
 
 sentry_sdk.init(
     "https://53058513222b41498b342be101261452@o358570.ingest.sentry.io/3153173",
@@ -20,7 +20,7 @@ GPIO.setup(redButPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.output(redLedPin, GPIO.LOW)
 
 # Start Movie Loop
-Movies.StartLoop('/Assets')
+Movies.StartLoop(os.environ.get('AssetFolder'))
 
 try:
     while 1:
