@@ -14,3 +14,9 @@ def LogActivation(rfid, piid):
     if response.status_code != 200:
         print("Activation Write Unsuccessful. Please view Backend Error")
     return
+
+def GetUser(rfid):
+    response = requests.get('http://castlebackend-env.eba-5re8trqt.us-east-2.elasticbeanstalk.com/members/' + rfid, auth=HTTPBasicAuth(wsUsername, wsPassword))
+    if response.status_code != 200:
+        print("Member Retrieval Unsuccessful. Please view Backend Error")
+    return response.text
