@@ -143,7 +143,7 @@ def parseHellLevel(hellLevel, rfid):
         6: "The Sixth Circle: Heresy",
         7: "The Seventh Circle: Violence",
         8: "The Eighth Circle: Fraud",
-        9: "The Nine Circle: Treachery"
+        9: "The Ninth Circle: Treachery"
     }
     parsedHellLevel = mapping.get(hellLevel, "The First Circle: Limbo")
 
