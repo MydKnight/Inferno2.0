@@ -40,12 +40,14 @@ end
 
 local Intermission = function()
     local text
+    -- local font = resource.load_font("Canturbury.ttf")
 
     local function start(message)
         if text then
             return
         end
-        text = font:write(30,0,"Hello World", 100, 1,1,1,1)
+        text = resource.load_font("Canturbury.ttf")
+        text:write(30,0,"Hello World", 100, 1,1,1,1)
     end
 
     local function stop()

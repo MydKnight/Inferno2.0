@@ -1,6 +1,6 @@
 import random
 import RPi.GPIO as GPIO
-import sentry_sdk, os, threading, serial, Movies, glob, WebService, json, subprocess
+import sentry_sdk, os, threading, serial, Movies, glob, WebService, json, subprocess, time
 from datetime import datetime
 
 sentry_sdk.init(
@@ -183,6 +183,11 @@ while True:
 
         # Message to display on Marquee    
         message = getMessage(rfid)
+
+        Movies.PlayMessage(message)
+        time.sleep(6)
+        Movies.PlayLoop()
+
         print (message)
 
         # Play Random Audio File
