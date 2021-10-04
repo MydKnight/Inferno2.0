@@ -16,6 +16,7 @@ gl.setup(NATIVE_WIDTH, NATIVE_HEIGHT)
 node.alias "looper"
 
 local raw = sys.get_ext "raw_video"
+local text = resource.load_font("Canturbury.ttf")
 
 local Looper = function(file)
     local vid = raw.load_video{
@@ -39,20 +40,14 @@ local Looper = function(file)
 end
 
 local Intermission = function()
-    local text
-    -- local font = resource.load_font("Canturbury.ttf")
-
     local function start(message)
         if text then
             return
         end
-        text = resource.load_font("Canturbury.ttf")
-        text:write(30,0,"Hello World", 100, 1,1,1,1)
     end
 
     local function stop()
         if text then
-            text:dispose()
             text = nil
         end
     end
@@ -76,12 +71,12 @@ local function show_loop()
     intermission.stop()
 end
 
-local function show_intermission(filename)
+local function show_intermission(message)
 end
 
 util.data_mapper{
-    ["play"] = function(filename)
-        intermission.start(filename)
+    ["play"] = function(message)
+        intermission.start(message)
     end;
     ["loop"] = function()
         show_loop()
@@ -93,4 +88,5 @@ show_loop()
 function node.render()
     gl.clear(0, 0, 0, 0)
     loop.set_running(not intermission.is_playing())
+    -- text:write(30,0,"Hello World", 100, 1,1,1,1)(not looper.is_playing())
 end
