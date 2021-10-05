@@ -39,25 +39,35 @@ local Looper = function(file)
 end
 
 local Intermission = function()
-    local text
-    -- local font = resource.load_font("Canturbury.ttf")
+    local vid
 
-    local function start(message)
-        if text then
+    local function start(filename)
+        if vid then
             return
+            -- vid:dispose()
         end
-        text = resource.load_font("Canturbury.ttf")
-        text:write(30,0,"Hello World", 100, 1,1,1,1)
+        vid = raw.load_video{
+            file = filename,
+            audio = true,
+        }
+        vid:target(0, 0, WIDTH, HEIGHT):layer(-1)
     end
 
     local function stop()
-        if text then
-            text:dispose()
-            text = nil
+        if vid then
+            vid:dispose()
+            vid = nil
         end
     end
 
     local function is_playing()
+        if not vid then
+            return false
+        end
+        local state = vid:state()
+        if state == "finished" then
+            stop()
+        end
         return state == "loaded"
     end
 

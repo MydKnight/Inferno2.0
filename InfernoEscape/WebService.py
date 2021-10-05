@@ -1,6 +1,11 @@
 __author__ = 'shilohmadsen'
-import requests, os
+import requests, os, sentry_sdk
 from requests.auth import HTTPBasicAuth
+
+sentry_sdk.init(
+    "https://3afa8408851043d78db36d6822534423@o358570.ingest.sentry.io/5992303",
+    traces_sample_rate=1.0,
+)
 
 wsUsername = os.environ.get('WS_Username')
 wsPassword = os.environ.get('WS_Password')

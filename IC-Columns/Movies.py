@@ -1,8 +1,12 @@
 __author__ = 'shilohmadsen'
 import os
 # This file sends the UDP commands to localhost to trigger the play movie
-import socket
-import subprocess
+import socket, subprocess, sentry_sdk
+
+sentry_sdk.init(
+    "https://11a17ec581624433b82658aafc16918e@o358570.ingest.sentry.io/5992300",
+    traces_sample_rate=1.0,
+)
 
 blackhole = open(os.devnull, 'w')
 
