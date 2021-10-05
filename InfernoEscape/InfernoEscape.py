@@ -7,7 +7,7 @@ from twython import Twython
 from sentry_sdk import capture_exception
 
 sentry_sdk.init(
-    "https://53058513222b41498b342be101261452@o358570.ingest.sentry.io/3153173",
+    "https://3afa8408851043d78db36d6822534423@o358570.ingest.sentry.io/5992303",
     traces_sample_rate=1.0,
 )
 

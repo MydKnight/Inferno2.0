@@ -1,9 +1,9 @@
 # External module imports
 import RPi.GPIO as GPIO
-import sentry_sdk, Movies, time, os, serial, subprocess, WebService
+import sentry_sdk, Movies, time, os, serial, subprocess, WebService, random, glob
 
 sentry_sdk.init(
-    "https://53058513222b41498b342be101261452@o358570.ingest.sentry.io/3153173",
+    "https://11a17ec581624433b82658aafc16918e@o358570.ingest.sentry.io/5992300",
     traces_sample_rate=1.0,
 )
 
@@ -35,6 +35,8 @@ ser = serial.Serial(
 # PIID for Logging Activations
 piid = os.environ.get('PIID')
 
+SatanAudio = glob.glob(os.path.join('/Audio', '*.mp3'))
+
 try:
     while 1:
         rfid = ser.readline()
@@ -51,7 +53,7 @@ try:
         GPIO.output(redLedPin, GPIO.LOW)
         time.sleep(2)
         # Play Demon Sounds
-        player = subprocess.Popen(['mpg321', os.environ.get('AssetFolder') + '/StoneSlide1.mp3'])
+        player = subprocess.Popen(['mpg321', random.choice(SatanAudio)])
         # Turn on Demon Eyes
         GPIO.output(blueLedPin, GPIO.HIGH)
         # Wait for sound file to end 
