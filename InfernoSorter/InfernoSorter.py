@@ -4,16 +4,20 @@ import sentry_sdk, os, threading, serial, Movies, glob, WebService, json, subpro
 from datetime import datetime
 
 sentry_sdk.init(
-    "https://53058513222b41498b342be101261452@o358570.ingest.sentry.io/3153173",
+    "https://6b25279be7af4821a389db384ce3ded3@o358570.ingest.sentry.io/5992320",
     traces_sample_rate=1.0,
 )
 
 # Pin Definitons:
-onePin = 16 
+eightPin = 16 
 twoPin = 21
 fourPin = 20
-eightPin = 26
-redButPin = 13
+onePin = 26
+lightShowPin = 8
+loadPin = 7
+strobePin = 19
+handSensorPin = 12
+
 
 # Pin Setup:
 GPIO.setmode(GPIO.BCM)
@@ -22,13 +26,19 @@ GPIO.setup(onePin, GPIO.OUT)
 GPIO.setup(twoPin, GPIO.OUT)
 GPIO.setup(fourPin, GPIO.OUT) 
 GPIO.setup(eightPin, GPIO.OUT)  
-GPIO.setup(redButPin, GPIO.IN, pull_up_down=GPIO.PUD_UP) 
+GPIO.setup(loadPin, GPIO.OUT)  
+GPIO.setup(lightShowPin, GPIO.OUT)  
+GPIO.setup(strobePin, GPIO.OUT)  
+GPIO.setup(handSensorPin, GPIO.IN, pull_up_down=GPIO.PUD_UP) 
 
 # Initial state for LEDs:
 GPIO.output(onePin, GPIO.LOW)
 GPIO.output(twoPin, GPIO.LOW)
 GPIO.output(fourPin, GPIO.LOW)
 GPIO.output(eightPin, GPIO.LOW)
+GPIO.output(loadPin, GPIO.LOW)
+GPIO.output(strobePin, GPIO.LOW)
+GPIO.output(lightShowPin, GPIO.LOW)
 
 # Setup Serial Port
 ser = serial.Serial(
@@ -80,7 +90,7 @@ def confirmIdentity():
     # Compare Last time to current
     string_list = firstLine.split(",")
     lastScan = datetime.strptime(string_list[0], "%m/%d/%Y %H:%M:%S")
-    diff = currentTime - lastScan
+    diff = lastScan - currentTime
     wholeSeconds = int(diff.total_seconds())
     
     # If Less than 10 seconds, write RFID variable
@@ -138,7 +148,6 @@ def parseHellLevel(hellLevel, rfid):
 def getMessage(rfid):
     message = "The Magic Castle Halloween 2021: Dante's Inferno"
     if rfid != '0':
-        print ("We have an RFID Number")
         # Set Name of User and Level of Hell/ Generic from Hell
         user = getUserFromDatabase(rfid)
         if len(user['data']) > 0:
@@ -168,11 +177,36 @@ def getMessage(rfid):
     
     return message
 
+def getLevel(message):
+    level = 1
+    mapping = {
+        "You are consigned to The First Circle: Limbo !": 1,
+        "You are consigned to The Second Circle: Lust !": 2,
+        "You are consigned to The Third Circle: Gluttony !": 3,
+        "You are consigned to The Fourth Circle: Greed !": 4,
+        "You are consigned to The Fifth Circle: Anger !": 5,
+        "You are consigned to The Sixty Circle: Heresy !": 6,
+        "You are consigned to The Seventh Circle: Violence !": 7,
+        "You are consigned to The Eighth Circle: Fraud !": 8,
+        "You are consigned to The Ninth Circle: Treachery !": 9
+    }
+    level = mapping.get(message, 1)
+    return level
+
+def lightHellLevel(level, state):
+    pinArray = GPIOMessagePins.get(level)
+    if state == "on":
+        for pin in pinArray:
+            GPIO.output(pin, GPIO.HIGH)
+    else:
+        for pin in pinArray:
+            GPIO.output(pin, GPIO.LOW)
+
 rfidLogger = threading.Thread(target=logRFIDRead, args=(1,))
 rfidLogger.start()
 
 while True:
-    if GPIO.input(redButPin): # button is released
+    if GPIO.input(handSensorPin): # button is released
         GPIO.output(onePin, GPIO.LOW)
     else: # button is pressed:
         GPIO.output(onePin, GPIO.HIGH)
@@ -184,14 +218,34 @@ while True:
         # Message to display on Marquee    
         message = getMessage(rfid)
 
-        Movies.PlayMessage(message)
-        time.sleep(6)
-        Movies.PlayLoop()
-
-        print (message)
-
-        # Play Random Audio File
+        # Parse the user Hell Level and set DCBA
+        level = getLevel(message)
+        lightHellLevel(level, "on")
+        
+        # Play Random Audio File and Lightshow
         player = subprocess.Popen(['mpg321', random.choice(HellSortAudio)])
+        GPIO.output(lightShowPin, GPIO.HIGH)
+        GPIO.output(loadPin, GPIO.HIGH)
         player.wait()
+        
+        # Stop Lightshow, Light Hell Level
+        GPIO.output(loadPin, GPIO.LOW)
+        
 
+        # Play Movie for Hell Level and bell
+        Movies.PlayMovie(str(level) + ".mp4")
+        player = subprocess.Popen(['mpg321', random.choice(HellSortAudio)])
+        time.sleep(6)
+
+        # Strobe and Print Soul Reciept
+        GPIO.output(strobePin, GPIO.HIGH)
+        
+        time.sleep(6)
+
+        # Reset (Movie, Pin State)
+        Movies.PlayLoop()
+        lightHellLevel(level, "off")
+        GPIO.output(strobePin, GPIO.LOW)
+        
+        #Debugging only. This pin will not need to be set low. 
         GPIO.output(onePin, GPIO.LOW)
