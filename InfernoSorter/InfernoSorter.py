@@ -16,7 +16,7 @@ onePin = 26
 lightShowPin = 8
 loadPin = 7
 strobePin = 19
-handSensorPin = 1
+handSensorPin = 13
 
 # Set up UDP Details
 UDP_IP_ADDRESS = "127.0.0.1"
