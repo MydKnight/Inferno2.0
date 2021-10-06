@@ -19,9 +19,8 @@ strobePin = 19
 handSensorPin = 13
 
 # Set up UDP Details
-UDP_IP_ADDRESS = "127.0.0.1"
+UDP_IP_ADDRESS = "192.168.40.49"
 UDP_PORT_NO = 6789
-Message = "Hello, Server"
 clientSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 # Pin Setup:
@@ -225,25 +224,26 @@ while True:
 
         # Parse the user Hell Level and set DCBA
         level = getLevel(message)
+        print ("Hell Level: " + str(level))
         lightHellLevel(level, "on")
         
         # Play Random Audio File and Lightshow
-        player = subprocess.Popen(['mpg321', random.choice(HellSortAudio)], stdout=subprocess.DEVNULL)
+        # player = subprocess.Popen(['mpg321', random.choice(HellSortAudio)], stdout=subprocess.DEVNULL)
         GPIO.output(lightShowPin, GPIO.HIGH)
         GPIO.output(loadPin, GPIO.HIGH)
-        player.wait()
+        # player.wait()
         
         # Stop Lightshow, Light Hell Level
         GPIO.output(loadPin, GPIO.LOW)
 
         # Play Movie for Hell Level and bell
         Movies.PlayMovie(str(level) + ".mp4")
-        player = subprocess.Popen(['mpg321', random.choice(HellSortAudio)], stdout=subprocess.DEVNULL)
-        time.sleep(6)
+        # player = subprocess.Popen(['mpg321', random.choice(HellSortAudio)], stdout=subprocess.DEVNULL)
+        # time.sleep(6)
 
-        # Strobe and Print Soul Reciept
+        # Strobe and Send UDP to Print Soul Reciept
         GPIO.output(strobePin, GPIO.HIGH)
-        # clientSock.sendto(str(level), (UDP_IP_ADDRESS, UDP_PORT_NO))
+        clientSock.sendto(str(level).encode('utf-8'), (UDP_IP_ADDRESS, UDP_PORT_NO))
         time.sleep(6)
 
         # Reset (Movie, Pin State)
