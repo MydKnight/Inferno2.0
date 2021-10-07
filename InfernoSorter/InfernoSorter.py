@@ -228,18 +228,18 @@ while True:
         lightHellLevel(level, "on")
         
         # Play Random Audio File and Lightshow
-        # player = subprocess.Popen(['mpg321', random.choice(HellSortAudio)], stdout=subprocess.DEVNULL)
+        player = subprocess.Popen(['mpg321', random.choice(HellSortAudio)], stdout=subprocess.DEVNULL)
         GPIO.output(lightShowPin, GPIO.HIGH)
         GPIO.output(loadPin, GPIO.HIGH)
-        # player.wait()
+        player.wait()
         
         # Stop Lightshow, Light Hell Level
         GPIO.output(loadPin, GPIO.LOW)
 
         # Play Movie for Hell Level and bell
         Movies.PlayMovie(str(level) + ".mp4")
-        # player = subprocess.Popen(['mpg321', random.choice(HellSortAudio)], stdout=subprocess.DEVNULL)
-        # time.sleep(6)
+        player = subprocess.Popen(['mpg321', random.choice(HellSortAudio)], stdout=subprocess.DEVNULL)
+        time.sleep(6)
 
         # Strobe and Send UDP to Print Soul Reciept
         GPIO.output(strobePin, GPIO.HIGH)
