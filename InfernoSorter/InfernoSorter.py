@@ -19,7 +19,7 @@ strobePin = 19
 handSensorPin = 13
 
 # Set up UDP Details
-UDP_IP_ADDRESS = "192.168.40.49"
+UDP_IP_ADDRESS = "192.168.40.242"
 UDP_PORT_NO = 6789
 clientSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 

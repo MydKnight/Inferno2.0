@@ -9,8 +9,8 @@ sentry_sdk.init(
 
 # Pin Definitons:
 redLedPin = 16 
-blueLedPin = 21 
-greenLedPin = 20
+blueLedPin = 20 
+greenLedPin = 21
 
 # Simple UDP Server
 UDP_IP_ADDRESS = "192.168.40.163"

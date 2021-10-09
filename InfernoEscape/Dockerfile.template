@@ -17,7 +17,7 @@ RUN READTHEDOCS=True
 # pip install python deps from requirements.txt on the resin.io build server
 RUN apt-get update -y \
     && apt-get install python-dev python-pip gcc apt-utils mpg321 lame \
-    && pip install --upgrade pip rpi.gpio sentry-sdk DmxPy pyserial picamera twython
+    && pip install --upgrade pip rpi.gpio sentry-sdk pyserial picamera twython DmxPy
 
 # This will copy all files in our root to the working  directory in the container
 COPY . ./

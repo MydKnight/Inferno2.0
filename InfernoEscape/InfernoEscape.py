@@ -5,11 +5,14 @@ import sentry_sdk, picamera, time, os, threading, serial, WebService, json, rand
 from datetime import datetime
 from twython import Twython
 from sentry_sdk import capture_exception
+from dmxpy import DmxPy
 
 sentry_sdk.init(
     "https://3afa8408851043d78db36d6822534423@o358570.ingest.sentry.io/5992303",
     traces_sample_rate=1.0,
 )
+
+dmx = DmxPy.DmxPy('/dev/ttyUSB0')
 
 # For uploading to Twitter
 twitter = Twython(
@@ -188,6 +191,9 @@ try:
             # Read if RFID was scanned within 10 seconds
             rfid = confirmIdentity()
             
+            print(rfid)
+            dmx.setChannel(1, 255)
+
             WebService.LogActivation(rfid, piid)
             
             # Determine Escape (0) / Damnation (1)
@@ -201,18 +207,19 @@ try:
                 GPIO.output(blueLedPin, GPIO.HIGH)
                 player = subprocess.Popen(['mpg321', random.choice(DamnationLines)])
             
-            message = getMessage(soulDetermination, rfid)
-            player.wait()
+            # message = getMessage(soulDetermination, rfid)
+            # player.wait()
 
             # Take Picture
-            picture = takePicture("pictures")
+            # picture = takePicture("pictures")
             
             # Upload Picture
-            postPicture(picture, message)
+            # postPicture(picture, message)
 
             # Lights Out
             GPIO.output(blueLedPin, GPIO.LOW)
             GPIO.output(redLedPin, GPIO.LOW)
+            dmx.setChannel(1, 0)
 
 except KeyboardInterrupt: # If CTRL+C is pressed, exit cleanly:
     GPIO.cleanup()
