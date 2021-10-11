@@ -12,7 +12,7 @@ sentry_sdk.init(
     traces_sample_rate=1.0,
 )
 
-dmx = DmxPy.DmxPy('/dev/ttyUSB0')
+# dmx = DmxPy.DmxPy('/dev/ttyUSB0')
 
 # For uploading to Twitter
 twitter = Twython(
@@ -23,20 +23,18 @@ twitter = Twython(
 )
 
 # Pin Definitons:
-redLedPin = 16 
-blueLedPin = 21
+lightStripPin = 17
 redButPin = 13
 
 # Pin Setup:
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False) 
-GPIO.setup(redLedPin, GPIO.OUT) 
-GPIO.setup(blueLedPin, GPIO.OUT) 
-GPIO.setup(redButPin, GPIO.IN, pull_up_down=GPIO.PUD_UP) 
+GPIO.setup(lightStripPin, GPIO.OUT) 
+GPIO.setup(redButPin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) 
 
 # Initial state for LEDs:
-GPIO.output(redLedPin, GPIO.LOW)
-GPIO.output(blueLedPin, GPIO.LOW)
+GPIO.output(lightStripPin, GPIO.LOW)
+
 
 # Setup Serial Port
 ser = serial.Serial(
@@ -101,7 +99,7 @@ def confirmIdentity():
     wholeSeconds = int(diff.total_seconds())
     
     # If Less than 10 seconds, write RFID variable
-    if wholeSeconds < 300:
+    if wholeSeconds < 30:
         rfid = string_list[1]
 
     return rfid
@@ -154,10 +152,17 @@ def parseHellLevel(hellLevel, rfid):
 
 def getMessage(determination, rfid):
     message = "The Magic Castle Halloween 2021: Dante's Inferno"
+    # Temp code to get us running
+    if determination == 0:
+            message = "A Lost Soul has escaped Hell! @TheMagicCastle"
+    else:
+        message = "A Lost Soul was damned for all eternity! @TheMagicCastle"
+    return message
+
     if rfid != '0':
-        print ("We have an RFID Number")
         # Set Name of User and Level of Hell/ Generic from Hell
         user = getUserFromDatabase(rfid)
+        print (user)
         if len(user['data']) > 0:
             FirstName = user['data'][0]['FirstName']
             LastName = user['data'][0]['LastName']
@@ -183,16 +188,24 @@ def getMessage(determination, rfid):
 rfidLogger = threading.Thread(target=logRFIDRead, args=(1,))
 rfidLogger.start()
 
+timer = time.time()
+bgPlayer = subprocess.Popen(['mpg321', '-q', 'icecrack.mp3'])
+
 try:
     while 1:
-        if GPIO.input(redButPin): # button is released
-            GPIO.output(redLedPin, GPIO.LOW)
-        else: # button is pressed:
-            # Read if RFID was scanned within 10 seconds
-            rfid = confirmIdentity()
-            
+        # Play an audio file every 15 minutes (initially every 2 minutes)
+        current = time.time()
+        if current - timer > 120:
+            timer = current
+            bgPlayer = subprocess.Popen(['mpg321', '-q', 'icecrack.mp3'])
+        else:
+            pass
+
+        if GPIO.input(redButPin): # button is pressed
+            # Read if RFID was scanned within 10 seconds and kill the background player if running
+            rfid = confirmIdentity()        
             print(rfid)
-            dmx.setChannel(1, 255)
+            bgPlayer.kill()
 
             WebService.LogActivation(rfid, piid)
             
@@ -201,25 +214,32 @@ try:
 
             # Activate Escape / Damnation Sequence
             if soulDetermination == 0:
-                GPIO.output(redLedPin, GPIO.HIGH)
-                player = subprocess.Popen(['mpg321', random.choice(SalvationLines)])
+                # dmx.set_channel(1, 255)
+                player = subprocess.Popen(['mpg321', '-q',random.choice(SalvationLines)])
             else:
-                GPIO.output(blueLedPin, GPIO.HIGH)
-                player = subprocess.Popen(['mpg321', random.choice(DamnationLines)])
+                # dmx.set_channel(1, 255)
+                player = subprocess.Popen(['mpg321', '-q',random.choice(DamnationLines)])
             
-            # message = getMessage(soulDetermination, rfid)
-            # player.wait()
+            message = getMessage(soulDetermination, rfid)
+            player.wait()
 
+            GPIO.output(lightStripPin, GPIO.HIGH)
+            time.sleep(1)
+            
             # Take Picture
-            # picture = takePicture("pictures")
+            picture = takePicture("pictures")
+
+            GPIO.output(lightStripPin, GPIO.LOW)
             
             # Upload Picture
-            # postPicture(picture, message)
+            postPicture(picture, message)
 
             # Lights Out
-            GPIO.output(blueLedPin, GPIO.LOW)
-            GPIO.output(redLedPin, GPIO.LOW)
-            dmx.setChannel(1, 0)
+            # dmx.set_channel(1, 0)
+            timer = current
+            
+        else: # button is released
+            GPIO.output(lightStripPin, GPIO.LOW)
 
 except KeyboardInterrupt: # If CTRL+C is pressed, exit cleanly:
     GPIO.cleanup()

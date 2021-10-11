@@ -266,5 +266,5 @@ while True:
     GPIO.output(fourPin, GPIO.HIGH)
     GPIO.output(eightPin, GPIO.HIGH)
     GPIO.output(strobePin, GPIO.LOW)
-    time.sleep(20)
+    time.sleep(10)
     print ("Back to waiting")

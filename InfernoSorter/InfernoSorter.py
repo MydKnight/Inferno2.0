@@ -15,8 +15,8 @@ fourPin = 20
 onePin = 26
 lightShowPin = 8
 loadPin = 7
-strobePin = 19
-handSensorPin = 13
+strobePin = 13
+handSensorPin = 12
 
 # Set up UDP Details
 UDP_IP_ADDRESS = "192.168.40.242"
@@ -45,10 +45,10 @@ GPIO.output(strobePin, GPIO.LOW)
 GPIO.output(lightShowPin, GPIO.LOW)
 
 # Setup Serial Port
-ser = serial.Serial(
-    port='/dev/ttyS0',
-    baudrate = 9600
-)
+# ser = serial.Serial(
+#    port='/dev/ttyS0',
+#    baudrate = 9600
+#)
 
 HellSortAudio = glob.glob(os.path.join('/HellSortAudio', '*.mp3'))
 
@@ -74,8 +74,8 @@ Movies.StartLoop('Marquee')
 def logRFIDRead(name):
     try:
         while 1:
-            rfid = ser.readline()
-            rfid = rfid.decode('utf-8').replace('\r\n', '')
+            #rfid = ser.readline()
+            #rfid = rfid.decode('utf-8').replace('\r\n', '')
             loggedTime = datetime.now()
             f = open("rfidActivations.txt", "w")
             f.write(loggedTime.strftime("%m/%d/%Y %H:%M:%S") + "," + rfid)
@@ -215,6 +215,7 @@ while True:
     else: # button is pressed:
         GPIO.output(onePin, GPIO.HIGH)
         # Read if RFID was scanned within 10 seconds
+        rfid = "0"
         rfid = confirmIdentity()
         
         WebService.LogActivation(rfid, piid)
