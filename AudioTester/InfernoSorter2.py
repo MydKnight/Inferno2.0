@@ -36,10 +36,10 @@ GPIO.setup(strobePin, GPIO.OUT)
 GPIO.setup(handSensorPin, GPIO.IN) 
 
 # Initial state for LEDs:
-GPIO.output(onePin, GPIO.LOW)
-GPIO.output(twoPin, GPIO.LOW)
-GPIO.output(fourPin, GPIO.LOW)
-GPIO.output(eightPin, GPIO.LOW)
+GPIO.output(onePin, GPIO.HIGH)
+GPIO.output(twoPin, GPIO.HIGH)
+GPIO.output(fourPin, GPIO.HIGH)
+GPIO.output(eightPin, GPIO.HIGH)
 GPIO.output(loadPin, GPIO.LOW)
 GPIO.output(strobePin, GPIO.LOW)
 GPIO.output(lightShowPin, GPIO.LOW)
@@ -203,12 +203,17 @@ def lightHellLevel(level, state):
     print (pinArray)
     print (state)
     if state == "on":
+        for pin in [16, 21, 20, 26]:
+            GPIO.output(pin, GPIO.LOW)
         for pin in pinArray:
-            print (pin)
             GPIO.output(pin, GPIO.HIGH)
     else:
         for pin in pinArray:
             GPIO.output(pin, GPIO.LOW)
+    print ("One: " + str(onePin))
+    print ("Two: " + str(onePin))
+    print ("Four: " + str(onePin))
+    print ("Eight: " + str(onePin))
 
 rfidLogger = threading.Thread(target=logRFIDRead, args=(1,))
 rfidLogger.start()
@@ -246,9 +251,10 @@ while True:
     
     # Stop Lightshow, Light Hell Level
     time.sleep(2.5)
+    print("Hell Level should light: " + str(level))
     GPIO.output(lightShowPin, GPIO.LOW)
     GPIO.output(loadPin,GPIO.HIGH) # because it can't hurt
-    
+    time.sleep(2)
 
     # Play Movie for Hell Level and bell
     # Movies.PlayMovie(str(level) + ".mp4")
@@ -266,5 +272,6 @@ while True:
     GPIO.output(fourPin, GPIO.HIGH)
     GPIO.output(eightPin, GPIO.HIGH)
     GPIO.output(strobePin, GPIO.LOW)
+    GPIO.output(loadPin, GPIO.LOW)
     time.sleep(10)
     print ("Back to waiting")
