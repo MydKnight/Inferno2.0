@@ -154,9 +154,9 @@ def getMessage(determination, rfid):
     message = "The Magic Castle Halloween 2021: Dante's Inferno"
     # Temp code to get us running
     if determination == 0:
-            message = "A Lost Soul has escaped Hell! @TheMagicCastle"
+            message = "A Lost Soul has escaped Hell!"
     else:
-        message = "A Lost Soul was damned for all eternity! @TheMagicCastle"
+        message = "A Lost Soul was damned for all eternity!"
     return message
 
     if rfid != '0':

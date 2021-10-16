@@ -17,7 +17,7 @@ def LogActivation(rfid, piid):
         "ActivationType": 2
     }, auth=HTTPBasicAuth(wsUsername, wsPassword))
     if response.status_code != 200:
-        print("Activation Write Unsuccessful. Please view Backend Error")
+        print(response.text)
     return
 
 def GetUser(rfid):

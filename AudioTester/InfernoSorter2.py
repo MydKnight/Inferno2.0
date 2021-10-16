@@ -198,10 +198,7 @@ def getLevel(message):
     return level
 
 def lightHellLevel(level, state):
-    print (level)
     pinArray = GPIOMessagePins.get(level)
-    print (pinArray)
-    print (state)
     if state == "on":
         for pin in [16, 21, 20, 26]:
             GPIO.output(pin, GPIO.LOW)
@@ -210,10 +207,6 @@ def lightHellLevel(level, state):
     else:
         for pin in pinArray:
             GPIO.output(pin, GPIO.LOW)
-    print ("One: " + str(onePin))
-    print ("Two: " + str(onePin))
-    print ("Four: " + str(onePin))
-    print ("Eight: " + str(onePin))
 
 rfidLogger = threading.Thread(target=logRFIDRead, args=(1,))
 rfidLogger.start()
@@ -236,7 +229,6 @@ while True:
 
     # Message to display on Marquee    
     message = getMessage(rfid)
-    print (message)
 
     # Parse the user Hell Level and set DCBA
     level = getLevel(message)
@@ -251,7 +243,6 @@ while True:
     
     # Stop Lightshow, Light Hell Level
     time.sleep(2.5)
-    print("Hell Level should light: " + str(level))
     GPIO.output(lightShowPin, GPIO.LOW)
     GPIO.output(loadPin,GPIO.HIGH) # because it can't hurt
     time.sleep(2)
