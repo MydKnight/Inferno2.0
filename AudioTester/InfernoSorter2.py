@@ -96,9 +96,10 @@ def confirmIdentity():
     lastScan = datetime.strptime(string_list[0], "%m/%d/%Y %H:%M:%S")
     diff = lastScan - currentTime
     wholeSeconds = int(diff.total_seconds())
+    print ("Time since last scan: " + str(wholeSeconds))
     
     # If Less than 10 seconds, write RFID variable
-    if wholeSeconds < 300:
+    if wholeSeconds < 30:
         rfid = string_list[1]
 
     return rfid
@@ -151,6 +152,8 @@ def parseHellLevel(hellLevel, rfid):
 
 def getMessage(rfid):
     message = "The Magic Castle Halloween 2021: Dante's Inferno"
+    # Temporary for the gag to work. Need to look into why we can't retrieve
+    rfid = '0'
     if rfid != '0':
         # Set Name of User and Level of Hell/ Generic from Hell
         user = getUserFromDatabase(rfid)
