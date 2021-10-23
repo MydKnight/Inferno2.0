@@ -1,6 +1,6 @@
 import random
 import RPi.GPIO as GPIO
-import sentry_sdk, os, threading, serial, Movies, glob, WebService, json, subprocess, time, socket
+import sentry_sdk, os, threading, serial, glob, WebService, json, subprocess, time, socket, TextToSpeech
 from datetime import datetime
 
 sentry_sdk.init(
@@ -221,51 +221,55 @@ while True:
     while (GPIO.input(handSensorPin)):
        pass              
     
-    # button is pressed when GPIO pin is false
-    print ("pressed")
+    # If its Burnch Time, (10-3) Do not execute main sequence
+    now = datetime.now()
+    if (17 <= now.hour <= 21):
+        TextToSpeech.PlayText("The Gates to hell are not open. Please return in the evening to meet your ultimate fate.")
+        print ("Arcade activated outside of evening hours")
+    else:
+        # Read if RFID was scanned within 10 seconds
+        rfid = "0"
+        rfid = confirmIdentity()
+        print ("RFID: " + str(rfid))
+        WebService.LogActivation(rfid, piid)
 
-    # Read if RFID was scanned within 10 seconds
-    rfid = "0"
-    rfid = confirmIdentity()
-    print ("RFID: " + str(rfid))
-    WebService.LogActivation(rfid, piid)
+        # Message to display on Marquee    
+        message = getMessage(rfid)
 
-    # Message to display on Marquee    
-    message = getMessage(rfid)
+        # Parse the user Hell Level and set DCBA
+        level = getLevel(message)
+        print ("Hell Level: " + str(level))
+        lightHellLevel(level, "on")
+        
+        # Play Random Audio File and Lightshow
+        player = subprocess.Popen(['mpg321', '-q',random.choice(HellSortAudio)])
+        GPIO.output(lightShowPin, GPIO.HIGH)
+        GPIO.output(loadPin, GPIO.LOW)
+        player.wait()
+        
+        # Stop Lightshow, Light Hell Level
+        time.sleep(2.5)
+        GPIO.output(lightShowPin, GPIO.LOW)
+        GPIO.output(loadPin,GPIO.HIGH) # because it can't hurt
+        time.sleep(2)
 
-    # Parse the user Hell Level and set DCBA
-    level = getLevel(message)
-    print ("Hell Level: " + str(level))
-    lightHellLevel(level, "on")
-    
-    # Play Random Audio File and Lightshow
-    player = subprocess.Popen(['mpg321', '-q',random.choice(HellSortAudio)])
-    GPIO.output(lightShowPin, GPIO.HIGH)
-    GPIO.output(loadPin, GPIO.LOW)
-    player.wait()
-    
-    # Stop Lightshow, Light Hell Level
-    time.sleep(2.5)
-    GPIO.output(lightShowPin, GPIO.LOW)
-    GPIO.output(loadPin,GPIO.HIGH) # because it can't hurt
-    time.sleep(2)
+        # Play Movie for Hell Level and bell
+        # Movies.PlayMovie(str(level) + ".mp4")
+        TextToSpeech.PlayText(message)
+        player = subprocess.Popen(['mpg321', '-q', 'bell.mp3'])
 
-    # Play Movie for Hell Level and bell
-    # Movies.PlayMovie(str(level) + ".mp4")
-    player = subprocess.Popen(['mpg321', '-q', 'bell.mp3'])
+        # Strobe and Send UDP to Print Soul Reciept
+        GPIO.output(strobePin, GPIO.HIGH)
+        clientSock.sendto(str(level).encode('utf-8'), (UDP_IP_ADDRESS, UDP_PORT_NO))
+        time.sleep(6)
 
-    # Strobe and Send UDP to Print Soul Reciept
-    GPIO.output(strobePin, GPIO.HIGH)
-    clientSock.sendto(str(level).encode('utf-8'), (UDP_IP_ADDRESS, UDP_PORT_NO))
-    time.sleep(6)
-
-    # Reset (Movie, Pin State)
-    # Movies.PlayLoop()
-    GPIO.output(onePin, GPIO.HIGH)
-    GPIO.output(twoPin, GPIO.HIGH)
-    GPIO.output(fourPin, GPIO.HIGH)
-    GPIO.output(eightPin, GPIO.HIGH)
-    GPIO.output(strobePin, GPIO.LOW)
-    GPIO.output(loadPin, GPIO.LOW)
-    time.sleep(10)
-    print ("Back to waiting")
+        # Reset (Movie, Pin State)
+        # Movies.PlayLoop()
+        GPIO.output(onePin, GPIO.HIGH)
+        GPIO.output(twoPin, GPIO.HIGH)
+        GPIO.output(fourPin, GPIO.HIGH)
+        GPIO.output(eightPin, GPIO.HIGH)
+        GPIO.output(strobePin, GPIO.LOW)
+        GPIO.output(loadPin, GPIO.LOW)
+        time.sleep(10)
+        print ("Back to waiting")

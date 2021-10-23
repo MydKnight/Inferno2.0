@@ -13,8 +13,8 @@ FROM balenalib/%%BALENA_MACHINE_NAME%%-python:3-stretch-run
 
 # pip install python deps from requirements.txt on the resin.io build server
 RUN apt-get update \
-    && apt-get install python-dev python-pip gcc apt-utils omxplayer libevent-2.0-5 alsa-utils  mpg321 lame libavformat57 libpng12-0 libfreetype6 libavresample3 \
-    && pip install --upgrade pip rpi.gpio sentry-sdk DmxPy pyserial requests
+    && apt-get install python-dev python-pip gcc apt-utils omxplayer libevent-2.0-5 alsa-utils espeak mpg321 lame libavformat57 libpng12-0 libfreetype6 libavresample3 \
+    && pip install --upgrade pip rpi.gpio sentry-sdk DmxPy pyserial requests pyttsx3 gTTS
 
 # This will copy all files in our root to the working  directory in the container
 COPY . ./

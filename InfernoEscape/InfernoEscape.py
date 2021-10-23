@@ -1,7 +1,7 @@
 # External module imports
 from sys import builtin_module_names
 import RPi.GPIO as GPIO
-import sentry_sdk, picamera, time, os, threading, serial, WebService, json, random, subprocess, glob
+import sentry_sdk, picamera, time, os, threading, serial, WebService, json, random, subprocess, glob, TextToSpeech
 from datetime import datetime
 from twython import Twython
 from sentry_sdk import capture_exception
@@ -152,12 +152,6 @@ def parseHellLevel(hellLevel, rfid):
 
 def getMessage(determination, rfid):
     message = "The Magic Castle Halloween 2021: Dante's Inferno"
-    # Temp code to get us running
-    if determination == 0:
-            message = "A Lost Soul has escaped Hell!"
-    else:
-        message = "A Lost Soul was damned for all eternity!"
-    return message
 
     if rfid != '0':
         # Set Name of User and Level of Hell/ Generic from Hell
@@ -213,6 +207,14 @@ try:
             soulDetermination = random.choice([0, 1])
 
             # Activate Escape / Damnation Sequence
+            GPIO.output(lightStripPin, GPIO.HIGH)
+            time.sleep(1)
+            
+            # Take Picture
+            picture = takePicture("pictures")
+
+            GPIO.output(lightStripPin, GPIO.LOW)
+
             if soulDetermination == 0:
                 # dmx.set_channel(1, 255)
                 player = subprocess.Popen(['mpg321', '-q',random.choice(SalvationLines)])
@@ -222,15 +224,8 @@ try:
             
             message = getMessage(soulDetermination, rfid)
             player.wait()
+            TextToSpeech.PlayText(message)
 
-            GPIO.output(lightStripPin, GPIO.HIGH)
-            time.sleep(1)
-            
-            # Take Picture
-            picture = takePicture("pictures")
-
-            GPIO.output(lightStripPin, GPIO.LOW)
-            
             # Upload Picture
             postPicture(picture, message)
 
