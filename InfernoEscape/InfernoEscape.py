@@ -95,8 +95,9 @@ def confirmIdentity():
     # Compare Last time to current
     string_list = firstLine.split(",")
     lastScan = datetime.strptime(string_list[0], "%m/%d/%Y %H:%M:%S")
-    diff = currentTime - lastScan
+    diff = lastScan - currentTime
     wholeSeconds = int(diff.total_seconds())
+    print ("time since last rfid scanned: " + str(wholeSeconds))
     
     # If Less than 10 seconds, write RFID variable
     if wholeSeconds < 30:
@@ -113,7 +114,7 @@ def getUserFromDatabase(rfid):
 def parseHellLevel(hellLevel, rfid):
     parsedHellLevel = "The First Circle: Limbo"
     
-    if hellLevel == None:
+    if hellLevel == None or hellLevel ==0:
         # Designate based on RFID
         if rfid[0] == "1" or  rfid[0] == "2":
             hellLevel == 1
@@ -224,6 +225,7 @@ try:
             
             message = getMessage(soulDetermination, rfid)
             player.wait()
+            print(message)
             TextToSpeech.PlayText(message)
 
             # Upload Picture

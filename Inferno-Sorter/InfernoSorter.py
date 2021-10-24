@@ -113,7 +113,7 @@ def getUserFromDatabase(rfid):
 def parseHellLevel(hellLevel, rfid):
     parsedHellLevel = "The First Circle: Limbo"
     
-    if hellLevel == None:
+    if hellLevel == None or hellLevel == 0:
         # Designate based on RFID
         if rfid[0] == "1" or  rfid[0] == "2":
             hellLevel == 1
@@ -157,6 +157,7 @@ def getMessage(rfid):
     if rfid != '0':
         # Set Name of User and Level of Hell/ Generic from Hell
         user = getUserFromDatabase(rfid)
+        print ("user: " + user)
         if len(user['data']) > 0:
             FirstName = user['data'][0]['FirstName']
             LastName = user['data'][0]['LastName']
@@ -255,6 +256,7 @@ while True:
 
         # Play Movie for Hell Level and bell
         # Movies.PlayMovie(str(level) + ".mp4")
+        print(message)
         TextToSpeech.PlayText(message)
         player = subprocess.Popen(['mpg321', '-q', 'bell.mp3'])
 
