@@ -1,7 +1,7 @@
 # External module imports
 from sys import builtin_module_names
 import RPi.GPIO as GPIO
-import sentry_sdk, picamera, time, os, threading, serial, WebService, json, random, subprocess, glob, TextToSpeech
+import sentry_sdk, picamera, time, os, threading, serial, WebService, json, random, subprocess, glob, DMX, TextToSpeech
 from datetime import datetime
 from twython import Twython
 from sentry_sdk import capture_exception
@@ -95,7 +95,7 @@ def confirmIdentity():
     # Compare Last time to current
     string_list = firstLine.split(",")
     lastScan = datetime.strptime(string_list[0], "%m/%d/%Y %H:%M:%S")
-    diff = lastScan - currentTime
+    diff = currentTime - lastScan
     wholeSeconds = int(diff.total_seconds())
     print ("time since last rfid scanned: " + str(wholeSeconds))
     
@@ -137,15 +137,15 @@ def parseHellLevel(hellLevel, rfid):
 
     # Once we have a level, translate that to text
     mapping = {
-        1: "The First Circle: Limbo",
-        2: "The Second Circle: Lust",
-        3: "The Third Circle: Gluttony",
-        4: "The Fourth Circle: Greed",
-        5: "The Fifth Circle: Anger",
-        6: "The Sixth Circle: Heresy",
-        7: "The Seventh Circle: Violence",
-        8: "The Eighth Circle: Fraud",
-        9: "The Ninth Circle: Treachery"
+        1: "The First Circle of Hell: Limbo",
+        2: "The Second Circle of Hell: Lust",
+        3: "The Third Circle of Hell: Gluttony",
+        4: "The Fourth Circle of Hell: Greed",
+        5: "The Fifth Circle of Hell: Anger",
+        6: "The Sixth Circle of Hell: Heresy",
+        7: "The Seventh Circle of Hell: Violence",
+        8: "The Eighth Circle of Hell: Fraud",
+        9: "The Ninth Circle of Hell: Treachery"
     }
     parsedHellLevel = mapping.get(hellLevel, "The First Circle: Limbo")
 
@@ -158,7 +158,9 @@ def getMessage(determination, rfid):
         # Set Name of User and Level of Hell/ Generic from Hell
         user = getUserFromDatabase(rfid)
         print (user)
-        if len(user['data']) > 0:
+        if rfid == '5D3E8E4F':
+            message = "The architect may travel freely about hell as he wishes."
+        elif len(user['data']) > 0:
             FirstName = user['data'][0]['FirstName']
             LastName = user['data'][0]['LastName']
             HellLevel = parseHellLevel(user['data'][0]['HellLevel'], rfid)
@@ -190,7 +192,7 @@ try:
     while 1:
         # Play an audio file every 15 minutes (initially every 2 minutes)
         current = time.time()
-        if current - timer > 120:
+        if current - timer > 30:
             timer = current
             bgPlayer = subprocess.Popen(['mpg321', '-q', 'icecrack.mp3'])
         else:
@@ -208,19 +210,26 @@ try:
             soulDetermination = random.choice([0, 1])
 
             # Activate Escape / Damnation Sequence
-            GPIO.output(lightStripPin, GPIO.HIGH)
-            time.sleep(1)
-            
-            # Take Picture
-            picture = takePicture("pictures")
-
-            GPIO.output(lightStripPin, GPIO.LOW)
-
             if soulDetermination == 0:
-                # dmx.set_channel(1, 255)
+                GPIO.output(lightStripPin, GPIO.HIGH)
+                DMX.setChannel(1, 255)
+                DMX.setChannel(2, 35)
+                time.sleep(1)
+            
+                # Take Picture
+                picture = takePicture("pictures")
+                GPIO.output(lightStripPin, GPIO.LOW)
+
                 player = subprocess.Popen(['mpg321', '-q',random.choice(SalvationLines)])
             else:
-                # dmx.set_channel(1, 255)
+                GPIO.output(lightStripPin, GPIO.HIGH)
+                DMX.setChannel(1, 255)
+                DMX.setChannel(2, 10)
+                time.sleep(1)
+                # Take Picture
+                picture = takePicture("pictures")
+                GPIO.output(lightStripPin, GPIO.LOW)
+                
                 player = subprocess.Popen(['mpg321', '-q',random.choice(DamnationLines)])
             
             message = getMessage(soulDetermination, rfid)
@@ -232,7 +241,8 @@ try:
             postPicture(picture, message)
 
             # Lights Out
-            # dmx.set_channel(1, 0)
+            DMX.setChannel(1, 0)
+            DMX.setChannel(2, 0)
             timer = current
             
         else: # button is released
